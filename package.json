@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "server": "node ./src/index.js",
-    "dev": "nodemon ./src/index.js",
+    "dev": "node ./src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:ui": "rm -rf dist && cd ../Part-2_Full_Stack_Open/phonebook/ && npm run build && cp -r dist ../../../Part-3_Full_Stack_Open/",
+    "build:ui": "rm -rf dist && cd ../../../Full_Stack_Open/part2/phonebook && npm run build && cp -r dist ../../../Full_Stack_Open/part3/phonebook-backend",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
   },
   "author": "",
