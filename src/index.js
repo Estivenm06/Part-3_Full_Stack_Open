@@ -1,7 +1,10 @@
+require("dotenv").config()
 const express = require("express")
 const morgan = require("morgan")
 const cors = require("cors")
 const app = express()
+const Person = require("../models/persons")
+const mongoose = require("mongoose")
 
 var persons = [
     {
@@ -26,7 +29,6 @@ var persons = [
     }
 
 ]
-
 app.use(express.json())
 app.use(cors())
 app.use(express.static("dist"))
@@ -38,17 +40,27 @@ morgan.token("data", (req, res) => {
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :data"))
 //GET ALL
 app.get("/api/persons", (req, res) => {
-    res.send(persons)
+    //res.send(persons)
+    Person.find({}).then(notes => {
+        res.json(notes)
+    })
 })
 //GET INFO
 app.get("/info", (req, res) => {
+    /*
     const personsInPhonebook = Number(persons.length)
     const currentDate = new Date()
     res.send(`<p>Phonebook has info for ${personsInPhonebook} people<p/><p>${currentDate}<p/>`)
-    //console.log(Number(persons.length));
+    console.log(Number(persons.length));
+    */
+   const personsInPhonebook = Number(Person.length)
+   const currentDate = new Date()
+   res.send(`<p>Phonebook has info for ${personsInPhonebook} people<p/><p>${currentDate}<p/>`)
+
 })
 //GET JUST ONE
 app.get("/api/persons/:id", (req, res) => {
+    /*
     const id = Number(req.params.id)
     const person = persons.find(e => e.id === id)
     if(person){
@@ -56,7 +68,16 @@ app.get("/api/persons/:id", (req, res) => {
     }else{
         res.status(404).end()
     }
+    */
+    Person.findById(req.params.id).then(note => {
+        res.json(note)
+    }).catch(error => {
+        console.log("This person isn't in the database", error.message);
+        res.status(404).end()
+    })
+
 })
+    
 //DELETE
 app.delete("/api/persons/:id", (req, res) => {
     const id = Number(req.params.id)
@@ -65,28 +86,36 @@ app.delete("/api/persons/:id", (req, res) => {
 })
 //POST
 app.post("/api/persons", (req, res) => {
-    const {body} = req
+    const body = req.body
     //console.log({body});
     if(!body.name || !body.number){
         res.status(400).json({
             error: "content missing"
         })
     }
-    if(persons.find(e => e.name === body.name)){
-        res.status(406).json({
-            error: "name must be unique"
-        })
-    }
-    const note = {
+
+    //if(Person.find(e => e.name === body.name)){
+    //   res.status(406).json({
+    //       error: "name must be unique"
+    //   })
+    //}
+    const newPerson = new Person({
         name: body.name,
-        number: body.number,
-        id: persons.length + 1
-    }
-    res.json(note)
-    persons = persons.concat(note)
+        number: body.number
+    })
+    newPerson.save()
+    .then(res => res.toJSON())
+    .then(response => {
+        console.log(`added ${newPerson.name} number ${newPerson.number} to phonebook`);
+        res.json(response)
+    })
+    .catch(err => {
+        console.log(err.message);
+    })
+    //persons = persons.concat(note)
 })
 
-const PORT =process.env.PORT || 3001
+const PORT =process.env.PORT
 app.listen(PORT, () => {
     console.log(`The server running on port ${PORT}`);
 })
