@@ -86,15 +86,10 @@ app.delete("/api/persons/:id", (req, res) => {
     res.status(204).end()
     */
    const id = req.params.id
-   Person.findByIdAndDelete(id, (err, res) => {
-    if(err) return res.status(505).send(err);
-    const response = {
-        message: "successfully deleted",
-        id: res.id
-    };
-    return res.status(200).send(res)
+   Person.findByIdAndDelete(id).then(person => {
+    res.json(person)
    })
-})
+   })
 //POST
 app.post("/api/persons", (req, res) => {
     const body = req.body
