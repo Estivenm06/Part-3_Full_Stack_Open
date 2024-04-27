@@ -80,9 +80,20 @@ app.get("/api/persons/:id", (req, res) => {
     
 //DELETE
 app.delete("/api/persons/:id", (req, res) => {
+    /*
     const id = Number(req.params.id)
     persons = persons.filter(e => e.id !== id)
     res.status(204).end()
+    */
+   const id = req.params.id
+   Person.findByIdAndDelete(id, (err, res) => {
+    if(err) return res.status(505).send(err);
+    const response = {
+        message: "successfully deleted",
+        id: res.id
+    };
+    return res.status(200).send(res)
+   })
 })
 //POST
 app.post("/api/persons", (req, res) => {
